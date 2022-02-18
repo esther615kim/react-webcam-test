@@ -2,6 +2,14 @@
 import './App.css';
 import { useEffect, useRef } from 'react';
 import {Button,ButtonGroup } from "@mui/material"
+import { io } from 'socket.io-client';
+
+const socket = io(
+  '/webRTCPeers',
+  {
+    path:'/webrtc'
+  }
+)
 
 function App() {
 
@@ -11,6 +19,10 @@ function App() {
   const textRef = useRef();
 
   useEffect(()=>{
+    
+    socket.on('connection-success',success =>{
+      console.log(success);
+    })
     const options = {
       audio:false,
       video:true,
