@@ -20,9 +20,9 @@ function App() {
 
   useEffect(()=>{
     
-    socket.on('connection-success',success =>{
-      console.log(success);
-    })
+    // socket.on('connection-success',success =>{
+    //   console.log(success);
+    // })
     const options = {
       audio:false,
       video:true,
@@ -32,6 +32,10 @@ function App() {
     .then(stream=>{
       //display video
       localvideoRef.current.srcObject =stream
+
+      stream.getTracks().forEach(track =>{
+        pc1.addTrack(track,stream)
+      })
     })
     .catch(e=>
       console.log("getUserMedia error"))
@@ -48,6 +52,7 @@ function App() {
 
       pc1.ontrack= (e)=>{
         // get remote stream
+        remotevideoRef.current.srcObject = e.streams[0] //?
       }
 
       pcRef.current = pc1;
@@ -66,7 +71,7 @@ function App() {
   }
 
   const answerSDP=()=>{
-    pcRef.current.answerOffer({
+    pcRef.current.createAnswer({
       offerToRecieveAudio:0,
       offerToReceiveVideo:1
 
@@ -81,7 +86,7 @@ function App() {
     // get SDP key from text
     const sdp = JSON.parse(textRef.current.value);
     console.log("sdp",sdp);
-    pcRef.current.setRemoteDescription(new RTCSessionDescription(sdp))
+    pcRef.current.setRemoteDescription(new RTCSessionDescription(sdp));
   }
 
   const addCandidate = ()=>{
@@ -100,9 +105,7 @@ function App() {
         <video className="video" ref={localvideoRef} autoPlay style={{width:300,height:240,margin:10}} ></video>
 <br/>
 <ButtonGroup mt={5} variant="contained">
-  {/* <Button color="warning" onClick={()=>{
-          getUserMedia();
-        }}>New Meeting</Button> */}
+
   <Button onClick={createSDP}>Create SDP  </Button>
   <Button onClick={answerSDP}>Offer SDP</Button>
   <br/>
